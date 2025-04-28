@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- link google font  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2&display=swap" rel="stylesheet">
+
+    <!-- link css  -->
+    <link rel="stylesheet" href="./styles.css">
+    
+    <!-- Link favicon  -->
+    <link rel="shortcut icon" href="./favicon.svg" type="image/jpg">
+    
+    <!-- Title  -->
+    <title>Qaza Namaz Calculator</title>
+
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <a href="index.html"><div class="logo">Mohd Yusuf</div></a>
+        <ul class="nav-links">
+            <li><a href="./QazaNamazCalc.html">Qaza Namaz Calculator</a></li>
+            <li><a href="./index.html#about">About</a></li>
+            <li><a href="./index.html#education">Education</a></li>
+            <li><a href="./index.html#projects">Projects</a></li>
+            <li><a href="./index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Qaza Namaz Calculator Section -->
+    <section id="qaza-namaz" class="qaza-section">
+        <div class="container">
+            <h2>Calculate Your Qaza Namaz</h2>
+            <div class="qaza-content">
+                <div class="qaza-form">
+                    <form id="qazaForm">
+                        <label for="gender">Select Gender:</label>
+                        <select id="gender" required>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                        
+                        <label for="dob">Date of Birth:</label>
+                        <input type="date" id="dob" required>
+                        
+                        <label for="endDate">Until what date should I calculate?</label>
+                        <input type="date" id="endDate" required>
+                        
+                        <div id="periodSection" style="display: none;">
+                            <label for="periodDays">Days of Period Per Month:</label>
+                            <input type="number" id="periodDays" min="0" max="10">
+                        </div>
+                        
+                        <label for="prayedRamzan">Did you pray all Namaz in Ramadan?</label>
+                        <select id="prayedRamzan" required>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                        
+                        <label for="prayedJummah">Did you regularly pray Jummah?</label>
+                        <select id="prayedJummah" required>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                        
+                        <button type="button" onclick="calculateQaza()">Calculate</button>
+                    </form>
+                </div>
+                <div class="qaza-result">
+                    <h3>Results</h3>
+                    <div id="result"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="aboutCalc" style="margin: 15px;" >
+            <h2 style="text-align: center; margin-bottom: 10px;">About Qaza Namaz Calculator</h2>
+            <p>The <strong>Qaza Namaz Calculator</strong> is designed to help users calculate their missed obligatory prayers (Qaza Namaz) based on their age, gender, and prayer habits. Below are the key factors considered in the calculation:</p>
+
+            <h3 style="margin-top: 10px;">1. Baligh (Maturity) Age</h3>
+            <ul style="margin-left: 20px;">
+                <li>For <strong>males</strong>, the calculator assumes they become <strong>Baligh at the age of 13</strong>.</li>
+                <li>For <strong>females</strong>, the calculator assumes they become <strong>Baligh at the age of 11</strong>.</li>
+                <li>The calculation starts from the user's <strong>Baligh date</strong> until the selected end date.</li>
+            </ul>
+
+            <h3 style="margin-top: 10px;">2. Period Days Adjustment (For Females)</h3>
+            <ul style="margin-left: 20px;">
+                <li>Since women are exempt from prayers during menstruation, the calculator allows them to enter the <strong>average number of days per month</strong> they miss due to their menstrual cycle.</li>
+                <li>The total number of missed days due to periods is subtracted from the overall count of Qaza Namaz days.</li>
+                <li>The calculator assumes a <strong>28-day average menstrual cycle</strong> when calculating the number of missed prayers.</li>
+            </ul>
+
+            <h3 style="margin-top: 10px;">3. Ramadan Adjustment</h3>
+            <ul style="margin-left: 20px;">
+                <li>If the user indicates that they <strong>prayed all Namaz during Ramadan</strong>, the calculator subtracts the estimated number of Ramadan days from the total count.</li>
+            </ul>
+
+            <h3 style="margin-top: 10px;">4. Jummah Prayer Adjustment</h3>
+            <ul style="margin-left: 20px;">
+                <li>If the user confirms that they <strong>regularly prayed Jummah (Friday) prayers</strong>, the calculator makes two adjustments:</li>
+                <li><strong>Fajr and Dhuhr</strong> prayers on Fridays are subtracted from the total missed prayers.</li>
+                <li><strong>Asr, Maghrib, Isha, and Witr</strong> prayers are recalculated by removing Fridays from the count.</li>
+            </ul>
+
+            <p style="margin-top: 10px;">This systematic approach ensures that users get an accurate count of their <strong>Qaza Namaz</strong> based on their individual circumstances.</p>
+        </div>
+    </section>
+    
+    <script>
+        document.getElementById("gender").addEventListener("change", function() {
+            document.getElementById("periodSection").style.display = this.value === "female" ? "block" : "none";
+        });
+
+        function calculateQaza() {
+            const gender = document.getElementById("gender").value;
+            const dob = new Date(document.getElementById("dob").value);
+            const endDate = new Date(document.getElementById("endDate").value);
+            const prayedRamzan = document.getElementById("prayedRamzan").value;
+            const prayedJummah = document.getElementById("prayedJummah").value;
+            
+            if (dob >= endDate) {
+                document.getElementById("result").innerHTML = "Invalid date selection.";
+                return;
+            }
+
+            let balighAge = gender === "male" ? 13 : 11;
+            let balighDate = new Date(dob);
+            balighDate.setFullYear(dob.getFullYear() + balighAge);
+            
+            if (balighDate > endDate) {
+                document.getElementById("result").innerHTML = "You were not baligh at the given end date, so no Qaza Namaz.";
+                return;
+            }
+
+            let totalDays = Math.floor((endDate - balighDate) / (1000 * 60 * 60 * 24));
+
+            if (gender === "female") {
+                let periodDays = parseInt(document.getElementById("periodDays").value) || 0;
+                let totalMonths = Math.floor(totalDays / 28);
+                totalDays -= totalMonths * periodDays;
+            }
+            
+            let AfterRamadan = totalDays;
+            if (prayedRamzan === "yes") {
+                let ramzanDays = Math.floor(totalDays / 354) * (30 - (gender === "female" ? (parseInt(document.getElementById("periodDays").value) || 0) : 0));
+                AfterRamadan -= ramzanDays;
+            }
+            
+            let AterRamadanAndJummah = AfterRamadan;
+            if (prayedJummah === "yes") {
+                let fridaysCount = 0;
+                for (let i = 0; i < AfterRamadan; i++) {
+                    let day = new Date(balighDate.getTime() + i * 86400000);
+                    if (day.getDay() === 5) fridaysCount++;
+                }
+                AterRamadanAndJummah -= fridaysCount;
+            }
+
+            document.getElementById('result').innerHTML = `
+                <h3 style="margin-bottom:10px; ">Total Qaza Namaz</h3>
+                <p>Fajr         : ${AterRamadanAndJummah} namaz</p>
+                <p>Dhuhr        : ${AterRamadanAndJummah} namaz</p>
+                <p>Asr          : ${AfterRamadan} namaz</p>
+                <p>Maghrib      : ${AfterRamadan} namaz</p>
+                <p>Isha         : ${AfterRamadan} namaz</p>
+                <p>Witr         : ${AfterRamadan} namaz</p>
+                <p class="warning" style="color:Red; margin-top: 30px; max-width: 35vw;">
+                    <strong>Disclaimer:</strong> This calculator provides an approximate estimation. The actual number of missed prayers may vary slightly. 
+                    May Allah forgive both of us for any miscalculations. Ameen.
+                </p>
+            `;
+        }
+    </script>
+</body>
+</html>
